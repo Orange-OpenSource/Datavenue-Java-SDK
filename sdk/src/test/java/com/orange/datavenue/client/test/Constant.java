@@ -10,9 +10,9 @@ package com.orange.datavenue.client.test;
 
 public interface Constant {
 
-	public static final String PRIMARY_MASTER_KEY = System.getenv("PRIMARY_MASTER_KEY");
-	public static final String MASTER_KEY = System.getenv("MASTER_KEY");
-	public static final String OPE_KEY = System.getenv("OPE_KEY");
-	public static final String PASSWORD = System.getenv("USER_PASSWORD");
+	public static final String PRIMARY_MASTER_KEY = System.getProperty("iss.sdk.PRIMARY_MASTER_KEY");
+	public static final String MASTER_KEY = System.getProperty("iss.sdk.MASTER_KEY");
+	public static final String OPE_KEY = System.getProperty("iss.sdk.OPE_KEY");
+	public static final String PASSWORD = System.getProperty("iss.sdk.USER_PASSWORD");
 
 }
