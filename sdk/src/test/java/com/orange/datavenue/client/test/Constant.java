@@ -14,5 +14,6 @@ public interface Constant {
 	public static final String MASTER_KEY = System.getProperty("iss.sdk.MASTER_KEY");
 	public static final String OPE_KEY = System.getProperty("iss.sdk.OPE_KEY");
 	public static final String PASSWORD = System.getProperty("iss.sdk.USER_PASSWORD");
+	public static final String ACCOUNT_ID = System.getProperty("iss.sdk.ACCOUNT_ID");
 
 }

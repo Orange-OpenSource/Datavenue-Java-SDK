@@ -25,7 +25,7 @@ public class TestAccount {
 
 	private static final Config cfg = new Config(Constant.OPE_KEY, Constant.PRIMARY_MASTER_KEY);
 
-	private static String accountID = "80a96a1dd4bc47ce80c741b3d5da37c9";
+	private static String accountID = Constant.ACCOUNT_ID;
 	private static AccountsApi accountsApi;
 
 	@BeforeClass
