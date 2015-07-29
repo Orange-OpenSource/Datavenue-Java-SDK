@@ -30,6 +30,9 @@ import com.orange.datavenue.client.model.Value;
  */
 public class PrototypeApi {
 
+	private static final String PAGE_SIZE_PARAM = "pagesize";
+	private static final String PAGE_NUMBER_PARAM = "pagenumber";
+	
 	final String basePath;
 	final String opeKey;
 	final String XISSKey;
@@ -233,9 +236,9 @@ public class PrototypeApi {
 		Map<String, String> formParams = new HashMap<String, String>();
 
 		if (!"null".equals(String.valueOf(page)))
-			queryParams.put("page", String.valueOf(page));
+			queryParams.put(PAGE_NUMBER_PARAM, String.valueOf(page));
 		if (!"null".equals(String.valueOf(size)))
-			queryParams.put("size", String.valueOf(size));
+			queryParams.put(PAGE_SIZE_PARAM, String.valueOf(size));
 		headerParams.put(ApiInvoker.OPE_KEY_NAME, opeKey);
 		headerParams.put("X-ISS-Key", XISSKey);
 		
@@ -329,9 +332,9 @@ public class PrototypeApi {
 		Map<String, String> formParams = new HashMap<String, String>();
 
 		if (!"null".equals(String.valueOf(page)))
-			queryParams.put("page", String.valueOf(page));
+			queryParams.put(PAGE_NUMBER_PARAM, String.valueOf(page));
 		if (!"null".equals(String.valueOf(size)))
-			queryParams.put("size", String.valueOf(size));
+			queryParams.put(PAGE_SIZE_PARAM, String.valueOf(size));
 		headerParams.put(ApiInvoker.OPE_KEY_NAME, opeKey);
 		headerParams.put("X-ISS-Key", XISSKey);
 		
@@ -564,9 +567,9 @@ public class PrototypeApi {
 		Map<String, String> formParams = new HashMap<String, String>();
 
 		if (!"null".equals(String.valueOf(page)))
-			queryParams.put("page", String.valueOf(page));
+			queryParams.put(PAGE_NUMBER_PARAM, String.valueOf(page));
 		if (!"null".equals(String.valueOf(size)))
-			queryParams.put("size", String.valueOf(size));
+			queryParams.put(PAGE_SIZE_PARAM, String.valueOf(size));
 		headerParams.put(ApiInvoker.OPE_KEY_NAME, opeKey);
 		headerParams.put("X-ISS-Key", XISSKey);
 		
@@ -813,9 +816,9 @@ public class PrototypeApi {
 		Map<String, String> formParams = new HashMap<String, String>();
 
 		if (!"null".equals(String.valueOf(page)))
-			queryParams.put("page", String.valueOf(page));
+			queryParams.put(PAGE_NUMBER_PARAM, String.valueOf(page));
 		if (!"null".equals(String.valueOf(size)))
-			queryParams.put("size", String.valueOf(size));
+			queryParams.put(PAGE_SIZE_PARAM, String.valueOf(size));
 		headerParams.put(ApiInvoker.OPE_KEY_NAME, opeKey);
 		headerParams.put("X-ISS-Key", XISSKey);
 		
