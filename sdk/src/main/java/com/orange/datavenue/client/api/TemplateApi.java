@@ -15,6 +15,7 @@ import java.util.Map;
 import com.orange.datavenue.client.Config;
 import com.orange.datavenue.client.common.ApiInvoker;
 import com.orange.datavenue.client.common.HTTPException;
+import com.orange.datavenue.client.common.HttpResponse;
 import com.orange.datavenue.client.common.SDKException;
 import com.orange.datavenue.client.model.Template;
 
@@ -26,12 +27,12 @@ import com.orange.datavenue.client.model.Template;
  */
 public class TemplateApi {
 
-	private static final String PAGE_SIZE_PARAM = "pagesize";
-	private static final String PAGE_NUMBER_PARAM = "pagenumber";
-	
 	final String basePath;
 	final String opeKey;
 	final String XISSKey;
+
+	private static final String PAGE_SIZE_PARAM = "pagesize";
+	private static final String PAGE_NUMBER_PARAM = "pagenumber";
 	
 	ApiInvoker apiInvoker = ApiInvoker.getInstance();
 
@@ -72,15 +73,9 @@ public class TemplateApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
-		if (response != null) {
-
-			return (Template) ApiInvoker.deserialize(response, "", Template.class);
-		} else {
-			return null;
-		}
-
+		return (Template) ApiInvoker.deserialize(httpResponse.body, "", Template.class);
 	}
 
 	/**
@@ -99,7 +94,7 @@ public class TemplateApi {
 	 *             <li>Code 928 : Invalid input data (Empy field)</li>
 	 *             </ul>
 	 */
-	public Template updateTemplate(String templateId, Template body) throws SDKException, HTTPException {
+	public void updateTemplate(String templateId, Template body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (templateId == null) {
@@ -118,13 +113,7 @@ public class TemplateApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Template) ApiInvoker.deserialize(response, "", Template.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -139,7 +128,7 @@ public class TemplateApi {
 	 *             <li>Code 914 : Resource not fount</li>
 	 *             </ul>
 	 */
-	public Template deleteTemplate(String templateId) throws SDKException, HTTPException {
+	public void deleteTemplate(String templateId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (templateId == null) {
@@ -158,13 +147,7 @@ public class TemplateApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Template) ApiInvoker.deserialize(response, "", Template.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -197,14 +180,9 @@ public class TemplateApi {
 		String contentType =  "application/json";
 
 		System.out.println(postBody);
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
 
-		if (response != null) {
-			return (Template) ApiInvoker.deserialize(response, "", Template.class);
-		} else {
-			return null;
-		}
-
+		return (Template) ApiInvoker.deserialize(httpResponse.body, "", Template.class);
 	}
 
 	/**
@@ -240,13 +218,8 @@ public class TemplateApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
-		if (response != null) {
-			return (List<Template>) ApiInvoker.deserialize(response, "List", Template.class);
-		} else {
-			return null;
-		}
-
+		return (List<Template>) ApiInvoker.deserialize(httpResponse.body, "List", Template.class);
 	}
 }

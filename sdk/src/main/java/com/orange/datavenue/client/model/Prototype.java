@@ -64,11 +64,14 @@ public class Prototype implements HasId{
 	/** Prototype ApiKey list */
 	private Map<String, Link> apikeys = null;
 
-	/** Data source date and time creation. Ex : 2014-06-16T14:25:000.000Z */
+	/** Prototype date and time creation. Ex : 2014-06-16T14:25:000.000Z */
 	private String created = null;
 
-	/** Data source date and time update. Ex : 2014-06-16T14:25:000.000Z */
+	/** Prototype date and time update. Ex : 2014-06-16T14:25:000.000Z */
 	private String updated = null;
+
+	/** Prototype status */
+	private String status = null;
 
 	/**
 	 * Get the prototype name
@@ -241,6 +244,24 @@ public class Prototype implements HasId{
 		this.updated = updated;
 	}
 
+	/**
+	 * Get the status
+	 *
+	 * @return status the prototype status
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * Set the prototype status
+	 *
+	 * @param status the new prototype status
+	 */
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -254,6 +275,7 @@ public class Prototype implements HasId{
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  created: ").append(created).append("\n");
 		sb.append("  updated: ").append(updated).append("\n");
+		sb.append("  status: ").append(status).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}

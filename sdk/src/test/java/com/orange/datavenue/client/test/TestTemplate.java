@@ -54,10 +54,9 @@ public class TestTemplate {
 		Template responseCreate = templateApi.createTemplate(templateBody);
 
 		Template responseGet = templateApi.getTemplate(responseCreate.getId());
-
-		templateApi.deleteTemplate(responseCreate.getId());
-
 		Assert.assertEquals(responseCreate.getName(), responseGet.getName());
+		
+		templateApi.deleteTemplate(responseCreate.getId());	
 	}
 
 	@Test
@@ -76,7 +75,7 @@ public class TestTemplate {
 
 		templateApi.deleteTemplate(responseCreate.getId());
 
-		Assert.assertEquals(responseGet.getName(), "SODA2");
+		Assert.assertEquals("SODA2", responseGet.getName());
 	}
 
 	@Test
@@ -91,7 +90,7 @@ public class TestTemplate {
 		try {
 			templateApi.getTemplate(responseCreate.getId());
 		} catch (HTTPException e) {
-			Assert.assertEquals(e.getDatavenueError().getCode(), 914);
+			Assert.assertEquals(914, e.getDatavenueError().getCode());
 		}
 	}
 
@@ -128,8 +127,8 @@ public class TestTemplate {
 		templateApi.deleteTemplate(responseFirstCreate.getId());
 		templateApi.deleteTemplate(responseSecondCreate.getId());
 
-		Assert.assertEquals(responseList.get(1).getName(), "SODA");
-		Assert.assertEquals(responseList.get(0).getName(), "SODA2");
+		Assert.assertEquals("SODA", responseList.get(1).getName());
+		Assert.assertEquals("SODA2", responseList.get(0).getName());
 
 	}
 }

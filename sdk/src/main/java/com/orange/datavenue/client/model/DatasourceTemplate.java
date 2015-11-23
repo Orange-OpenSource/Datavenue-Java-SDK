@@ -26,6 +26,9 @@ public class DatasourceTemplate {
 	/** Template link */
 	private Link link = null;
 
+	/** Template status */
+	private String status = null;
+
 	/**
 	 * Get template id
 	 * 
@@ -83,6 +86,24 @@ public class DatasourceTemplate {
 		this.link = link;
 	}
 
+	/**
+	 * Get the status
+	 *
+	 * @return status the template status
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * Set the template status
+	 *
+	 * @param status the new template status
+	 */
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -90,6 +111,7 @@ public class DatasourceTemplate {
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  name: ").append(name).append("\n");
 		sb.append("  link: ").append(link).append("\n");
+		sb.append("  status: ").append(status).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}

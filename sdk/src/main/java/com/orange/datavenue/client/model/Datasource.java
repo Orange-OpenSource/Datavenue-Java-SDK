@@ -11,20 +11,20 @@ package com.orange.datavenue.client.model;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
-
 /**
- * Data-source is the elements set associated with a device.
+ * Datasource is the elements set associated with a device.
  * 
  * @author MELIS Mathieu
  *
  */
-@JsonSerialize(include = Inclusion.NON_EMPTY)
+//@JsonSerialize(include = Inclusion.NON_EMPTY)
 public class Datasource implements HasId {
 
-	/** Data-source serial number */
+	/** Datasource serial number */
 	private String serial = null;
+
+	/** callback */
+	private Callback callback = null;
 
 	/** Group name list */
 	private List<String> group = null;
@@ -32,73 +32,94 @@ public class Datasource implements HasId {
 	/** link to the template */
 	private DatasourceTemplate template = null;
 
-	/** Data-source description */
+	/** Datasource description */
 	private String description = null;
 
-	/** Data-source name */
+	/** Datasource name */
 	private String name = null;
 
-	/** Data-source mete-data list */
+	/** Datasource mete-data list */
 	private List<Metadata> metadata = null;
 
-	/** Data-source URL */
+	/** Datasource URL */
 	private Link link = null;
 
-	/** Data-source streams list */
+	/** Datasource streams list */
 	private Map<String, Link> streams = null;
 
-	/** Data-source apiKeys list */
+	/** Datasource apiKeys list */
 	private Map<String, Link> apikeys = null;
 
-	/** Data-source id */
+	/** Datasource id */
 	private String id = null;
 
-	/** Data-source date and time creation. Ex : 2014-06-16T14:25:000.000Z */
+	/** Datasource date and time creation. Ex : 2014-06-16T14:25:000.000Z */
 	private String created = null;
 
-	/** Data-source date and time update. Ex : 2014-06-16T14:25:000.000Z */
+	/** Datasource date and time update. Ex : 2014-06-16T14:25:000.000Z */
 	private String updated = null;
 
+	/** Datasource status */
+	private String status = null;
+
 	/**
-	 * Get data-source serial
+	 * Get datasource serial
 	 * 
-	 * @return serial the data-source serial
+	 * @return serial the datasource serial
 	 */
 	public String getSerial() {
 		return serial;
 	}
 
 	/**
-	 * Set data-source serial
+	 * Set datasource serial
 	 * 
 	 * @param serial
-	 *            the new data-source serial
+	 *            the new datasource serial
 	 */
 	public void setSerial(String serial) {
 		this.serial = serial;
 	}
 
 	/**
-	 * Get data-source group list
+	 * Get the status
+	 *
+	 * @return status the datasource status
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * Set the datasource status
+	 *
+	 * @param status the new datasource status
+	 */
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	/**
+	 * Get datasource group list
 	 * 
-	 * @return group the data-source group list
+	 * @return group the datasource group list
 	 */
 	public List<String> getGroup() {
 		return group;
 	}
 
 	/**
-	 * Set data-source group list
+	 * Set datasource group list
 	 * 
 	 * @param group
-	 *            the new data-source group list
+	 *            the new datasource group list
 	 */
 	public void setGroup(List<String> group) {
 		this.group = group;
 	}
 
 	/**
-	 * Get data-source template
+	 * Get datasource template
 	 * 
 	 * @return template
 	 */
@@ -107,131 +128,127 @@ public class Datasource implements HasId {
 	}
 
 	/**
-	 * Set data-source template
+	 * Set datasource template
 	 * 
 	 * @param template
-	 *            the new data-source template
+	 *            the new datasource template
 	 */
 	public void setTemplate(DatasourceTemplate template) {
 		this.template = template;
 	}
 
 	/**
-	 * Get data-source description
+	 * Get datasource description
 	 * 
-	 * @return description the data-source description
+	 * @return description the datasource description
 	 */
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-	 * Set data-source description
+	 * Set datasource description
 	 * 
 	 * @param description
-	 *            the new data-source description
+	 *            the new datasource description
 	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
 	/**
-	 * Get data-source name
+	 * Get datasource name
 	 * 
-	 * @return name the data-source name
+	 * @return name the datasource name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Set data-source name
+	 * Set datasource name
 	 * 
 	 * @param name
-	 *            the new data-source name
+	 *            the new datasource name
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * Get data-source mete-data list
+	 * Get datasource mete-data list
 	 * 
-	 * @return meta-data the data-source meta-data list
+	 * @return metadata the datasource meta-data list
 	 */
 	public List<Metadata> getMetadata() {
 		return metadata;
 	}
 
 	/**
-	 * Set the data-source mete-data list
+	 * Set the datasource metadata list
 	 * 
-	 * @param metadata
-	 *            the new data-source meta-data list
+	 * @param metadata the new datasource metadata list
 	 */
 	public void setMetadata(List<Metadata> metadata) {
 		this.metadata = metadata;
 	}
 
 	/**
-	 * get data-source URL
+	 * get datasource URL
 	 * 
-	 * @return link the data-source URL
+	 * @return link the datasource URL
 	 */
 	public Link getLink() {
 		return link;
 	}
 
 	/**
-	 * Set data-source URL
+	 * Set datasource URL
 	 * 
-	 * @param link
-	 *            the new data-source URl
+	 * @param link the new datasource URl
 	 */
 	public void setLink(Link link) {
 		this.link = link;
 	}
 
 	/**
-	 * Get data-source streams list
+	 * Get datasource streams list
 	 * 
-	 * @return streams the data-source streams list
+	 * @return streams the datasource streams list
 	 */
 	public Map<String, Link> getStreams() {
 		return streams;
 	}
 
 	/**
-	 * Set data-source streams list
+	 * Set datasource streams list
 	 * 
-	 * @param streams
-	 *            the new data-source streams list
+	 * @param streams the new datasource streams list
 	 */
 	public void setStreams(Map<String, Link> streams) {
 		this.streams = streams;
 	}
 
 	/**
-	 * Get data-source apikeys list
+	 * Get datasource apikeys list
 	 * 
-	 * @return apikeys the data-source apikeys list
+	 * @return apikeys the datasource apikeys list
 	 */
 	public Map<String, Link> getApikeys() {
 		return apikeys;
 	}
 
 	/**
-	 * Set data-source apikeys list
+	 * Set datasource apikeys list
 	 * 
-	 * @param apikeys
-	 *            the new data-source apikeys list
+	 * @param apikeys the new datasource apikeys list
 	 */
 	public void setApikeys(Map<String, Link> apikeys) {
 		this.apikeys = apikeys;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.orange.datavenue.client.model.HasId#getId()
+	 * @see HasId#getId()
 	 */
 	@Override
 	public String getId() {
@@ -239,7 +256,7 @@ public class Datasource implements HasId {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.orange.datavenue.client.model.HasId#setId(java.lang.String)
+	 * @see HasId#setId(java.lang.String)
 	 */
 	@Override
 	public void setId(String id) {
@@ -247,41 +264,55 @@ public class Datasource implements HasId {
 	}
 
 	/**
-	 * Get the data-source date and time creation.
+	 * Get the datasource date and time creation.
 	 * 
-	 * @return created the data-source date and time creation.
+	 * @return created the datasource date and time creation.
 	 */
 	public String getCreated() {
 		return created;
 	}
 
 	/**
-	 * Set the data-source date and time creation.
+	 * Set the datasource date and time creation.
 	 * 
-	 * @param created
-	 *            the new date and time creation.
+	 * @param created the new date and time creation.
 	 */
 	public void setCreated(String created) {
 		this.created = created;
 	}
 
 	/**
-	 * Get the data-source date and time update.
+	 * Get the datasource date and time update.
 	 * 
-	 * @return the data-source date and time update.
+	 * @return the datasource date and time update.
 	 */
 	public String getUpdated() {
 		return updated;
 	}
 
 	/**
-	 * Set the data-source date and time update.
+	 * Set the datasource date and time update.
 	 * 
-	 * @param updated
-	 *            the new date and time update.
+	 * @param updated the new date and time update.
 	 */
 	public void setUpdated(String updated) {
 		this.updated = updated;
+	}
+
+	/**
+	 * Set the datasource callback
+	 * @param callback
+	 */
+	public void setCallback(Callback callback) {
+		this.callback = callback;
+	}
+
+	/**
+	 * Get datasource callback
+	 * @return
+	 */
+	public Callback getCallback() {
+		return this.callback;
 	}
 
 	@Override
@@ -298,8 +329,10 @@ public class Datasource implements HasId {
 		sb.append("  streams: ").append(streams).append("\n");
 		sb.append("  apikeys: ").append(apikeys).append("\n");
 		sb.append("  id: ").append(id).append("\n");
+		sb.append("  callback: ").append(callback.getUrl()).append("\n");
 		sb.append("  created: ").append(created).append("\n");
 		sb.append("  updated: ").append(updated).append("\n");
+		sb.append("  status: ").append(status).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}

@@ -8,39 +8,42 @@
 
 package com.orange.datavenue.client.common;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Response.Status.Family;
-
-import com.fasterxml.jackson.databind.JavaType;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.filter.LoggingFilter;
-import com.sun.jersey.multipart.FormDataMultiPart;
-
+/**
+ * @author Stéphane SANDON
+ */
 public class ApiInvoker {
+
+	private static final String TAG_NAME = ApiInvoker.class.getSimpleName();
+
 	public static final String OPE_KEY_NAME = "X-OAPI-Key";
 	private static ApiInvoker INSTANCE = new ApiInvoker();
-	private Map<String, Client> hostMap = new HashMap<String, Client>();
 	private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
-	private boolean isDebug = false;
-
-	public void enableDebug() {
-		isDebug = true;
-	}
 
 	public static ApiInvoker getInstance() {
 		return INSTANCE;
-	}
-
-	public void addDefaultHeader(String key, String value) {
-		defaultHeaderMap.put(key, value);
 	}
 
 	public String escapeString(String str) {
@@ -52,22 +55,27 @@ public class ApiInvoker {
 	}
 
 	public static Object deserialize(String json, String containerType, Class cls) throws SDKException {
+
 		try {
 			if ("List".equals(containerType)) {
 				JavaType typeInfo = JsonUtil.getJsonMapper().getTypeFactory().constructCollectionType(List.class, cls);
-				List response = (List<?>) JsonUtil.getJsonMapper().readValue(json, typeInfo);
-				return response;
+				List list = (List<?>) JsonUtil.getJsonMapper().readValue(json, typeInfo);
+				return list;
 			} else if (String.class.equals(cls)) {
 				if (json != null && json.startsWith("\"") && json.endsWith("\"") && json.length() > 1)
 					return json.substring(1, json.length() - 2);
 				else
 					return json;
 			} else {
-				return JsonUtil.getJsonMapper().readValue(json, cls);
+				if (json != null) {
+					return JsonUtil.getJsonMapper().readValue(json, cls);
+				}
+				throw new SDKException(500, "Unexpected Service Response");
 			}
 		} catch (IOException e) {
 			throw new SDKException(500, e.getMessage());
 		}
+
 	}
 
 	public static String serialize(Object obj) throws SDKException {
@@ -81,110 +89,213 @@ public class ApiInvoker {
 		}
 	}
 
-	public String invokeAPI(String host, String path, String method, Map<String, String> queryParams, Object body, Map<String, String> headerParams,
+	public HttpResponse invokeAPI(String host, String path, String method,
+			Map<String, String> queryParams, Object body, Map<String, String> headerParams,
 			Map<String, String> formParams, String contentType) throws SDKException, HTTPException {
-		Client client = getClient(host);
 
-		StringBuilder b = new StringBuilder();
+		System.out.println( "invokeAPI()");
+
+		System.out.println( String.format("host : %1$s", host));
+		System.out.println( String.format("path : %1$s", path));
+		System.out.println( String.format("method : %1$s", method));
+		System.out.println( String.format("contentType : %1$s", contentType));
+
+		HttpResponse response = new HttpResponse();
+
+		StringBuilder paramsBuilder = new StringBuilder();
 
 		for (String key : queryParams.keySet()) {
 			String value = queryParams.get(key);
 			if (value != null) {
-				if (b.toString().length() == 0)
-					b.append("?");
+				if (paramsBuilder.toString().length() == 0)
+					paramsBuilder.append("?");
 				else
-					b.append("&");
-				b.append(escapeString(key)).append("=").append(escapeString(value));
+					paramsBuilder.append("&");
+				paramsBuilder.append(escapeString(key)).append("=").append(escapeString(value));
 			}
 		}
-		String querystring = b.toString();
 
-		Builder builder = client.resource(host + path + querystring).accept("application/json");
-		for (String key : headerParams.keySet()) {
-			builder.header(key, headerParams.get(key));
-		}
+		String query = paramsBuilder.toString();
+		//System.out.println( String.format("query : %1$s", query));
+		//System.out.println( String.format("body : %1$s", (String)body));
 
-		for (String key : defaultHeaderMap.keySet()) {
-			if (!headerParams.containsKey(key)) {
-				builder.header(key, defaultHeaderMap.get(key));
+		HttpURLConnection urlConnection = null;
+
+		try {
+			URL url = new URL(String.format("%1$s%2$s%3$s",host, path, query));
+			urlConnection = (HttpURLConnection) url.openConnection();
+			urlConnection.setRequestMethod(method);
+
+			for (String key : headerParams.keySet()) {
+				urlConnection.setRequestProperty(key, headerParams.get(key));
 			}
-		}
-		ClientResponse response = null;
 
-		if ("GET".equals(method)) {
-			response = (ClientResponse) builder.get(ClientResponse.class);
-		} else {
+			urlConnection.setRequestProperty("Accept", "application/json");
+			urlConnection.setRequestProperty("Content-Type", contentType);
 
-			if ("POST".equals(method)) {
-				if (body == null)
-					response = builder.post(ClientResponse.class, null);
-				else if (body instanceof FormDataMultiPart) {
-					response = builder.type(contentType).post(ClientResponse.class, body);
-				} else {
-					String serialize = serialize(body);
-					response = builder.type(contentType).post(ClientResponse.class, serialize);
+			if (body != null) {
+				urlConnection.setDoOutput(true);
+			}
+
+			if ("GET".equals(method)) {
+				if (body != null) {
+					writeStream(urlConnection.getOutputStream(), serialize(body));
 				}
-			} else if ("PUT".equals(method)) {
-				if (body == null) {
-					String serialize = serialize(body);
-					response = builder.put(ClientResponse.class, serialize);
-				} else {
-					if ("application/x-www-form-urlencoded".equals(contentType)) {
-						StringBuilder formParamBuilder = new StringBuilder();
+				response.body = readStream(urlConnection.getInputStream());
 
-						// encode the form params
-						for (String key : formParams.keySet()) {
-							String value = formParams.get(key);
-							if (value != null && !"".equals(value.trim())) {
-								if (formParamBuilder.length() > 0) {
-									formParamBuilder.append("&");
-								}
-								try {
-									formParamBuilder.append(URLEncoder.encode(key, "utf8")).append("=").append(URLEncoder.encode(value, "utf8"));
-								} catch (Exception e) {
-									// move on to next
-								}
+				System.out.println( String.format("response : %1$s", response.body));
+			} else if ("POST".equals(method)) {
+				if (body != null) {
+					writeStream(urlConnection.getOutputStream(), serialize(body));
+				}
+				response.body = readStream(urlConnection.getInputStream());
+
+				System.out.println( String.format("response : %1$s", response.body));
+			} else if ("PUT".equals(method)) {
+
+				if ("application/x-www-form-urlencoded".equals(contentType)) {
+					StringBuilder formParamBuilder = new StringBuilder();
+
+					// encode the form params
+
+					for (String key : formParams.keySet()) {
+						String value = formParams.get(key);
+						if (value != null && !"".equals(value.trim())) {
+							if (formParamBuilder.length() > 0) {
+								formParamBuilder.append("&");
+							}
+							try {
+								formParamBuilder.append(URLEncoder.encode(key, "utf8")).append("=").append(URLEncoder.encode(value, "utf8"));
+							} catch (Exception e) {
+								// move on to next
+								System.out.println( e.toString());
 							}
 						}
-						response = builder.type(contentType).put(ClientResponse.class, formParamBuilder.toString());
-					} else {
-						String serialize = serialize(body);
-						response = builder.type(contentType).put(ClientResponse.class, serialize);
 					}
+
+					writeStream(urlConnection.getOutputStream(), formParamBuilder.toString());
+				} else {
+					writeStream(urlConnection.getOutputStream(), serialize(body));
 				}
+
+				response.body = readStream(urlConnection.getInputStream());
+
+				System.out.println( String.format("response : %1$s", response));
 			} else if ("DELETE".equals(method)) {
-				String serialize = serialize(body);
-				if (body == null)
-					response = builder.delete(ClientResponse.class, serialize);
-				else
-					response = builder.type(contentType).delete(ClientResponse.class, serialize);
+				if (body != null) {
+					writeStream(urlConnection.getOutputStream(), serialize(body));
+				}
+				response.body = readStream(urlConnection.getInputStream());
+
+				System.out.println( String.format("response : %1$s", response));
+			} else if ("OPTIONS".equals(method)) {
+				System.out.println( "method not implemented");
+				throw new SDKException(500, String.format("method not implemented %1$s", method));
+			} else if ("HEAD".equals(method)) {
+				System.out.println( "method not implemented");
+				throw new SDKException(500, String.format("method not implemented %1$s", method));
+			} else if ("TRACE".equals(method)) {
+				System.out.println( "method not implemented");
+				throw new SDKException(500, String.format("method not implemented %1$s", method));
 			} else {
-				throw new SDKException(500, "unknown method type " + method);
+				System.out.println( "Unknown method");
+				throw new SDKException(500, String.format("method not implemented %1$s", method));
+			}
+
+			response.headers =urlConnection.getHeaderFields();
+
+		} catch (MalformedURLException e) {
+			System.out.println( e.toString());
+		} catch (IOException e) {
+            // When an IOException occured, we have to read on the ErrorStream
+            if (urlConnection != null) {
+                try {
+                    int code = urlConnection.getResponseCode();
+                    String json = readStream(urlConnection.getErrorStream());
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(json);
+
+                        int datavenueCode = 0;
+
+                        if (jsonObject.has("code")) {
+                            datavenueCode = jsonObject.getInt("code");
+                        }
+
+                        String datavenueMessage = "";
+
+                        if (jsonObject.has("message")) {
+                            datavenueMessage = jsonObject.getString("message");
+                        }
+
+                        String datavenueDescription = "";
+
+                        if (jsonObject.has("description")) {
+                            datavenueDescription = jsonObject.getString("description");
+                        }
+
+                        DatavenueError datavenueError = new DatavenueError();
+                        datavenueError.setCode(datavenueCode);
+                        datavenueError.setMessage(datavenueMessage);
+                        datavenueError.setDescription(datavenueDescription);
+
+                        throw new HTTPException(code, datavenueError);
+
+                    } catch (JSONException je) {
+                        System.out.println( je.toString());
+                    }
+
+                } catch(IOException io) {
+                    System.out.println( io.toString());
+					throw new SDKException(500, io.toString(), io);
+                }
+            } else {
+                System.out.println( e.toString());
+				throw new SDKException(500, e.toString(), e);
+            }
+		} finally {
+			if (urlConnection != null) {
+				urlConnection.disconnect();
 			}
 		}
-		// WORKAROUND : check if response length is equal to 0. Used for getListValues() bug.
-		if (response.getClientResponseStatus() == ClientResponse.Status.NO_CONTENT || response.getLength() == 0) {
-			return null;
-		} else if (response.getClientResponseStatus().getFamily() == Family.SUCCESSFUL) {
-			return (String) response.getEntity(String.class);
-		} else {
-			DatavenueError datavenueError;
-			try {
-				datavenueError = (DatavenueError) deserialize(response.getEntity(String.class), "", DatavenueError.class);
-			} catch (Exception ex) {
-				throw new SDKException(500, "Serialization error ",ex);
-			}
-			throw new HTTPException(response.getClientResponseStatus().getStatusCode(), datavenueError);
-		}
+
+		response.log();
+
+		return response;
 	}
 
-	private Client getClient(String host) {
-		if (!hostMap.containsKey(host)) {
-			Client client = Client.create();
-			if (isDebug)
-				client.addFilter(new LoggingFilter());
-			hostMap.put(host, client);
+	/**
+	 *
+	 * @param in
+	 * @return
+	 */
+	private String readStream(InputStream in) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		StringBuilder out = new StringBuilder();
+		String line;
+		try {
+			while ((line = reader.readLine()) != null) {
+				out.append(line);
+			}
+			reader.close();
+		} catch(IOException e) {
+			System.out.println( e.toString());
 		}
-		return hostMap.get(host);
+		return out.toString();
+	}
+
+	/**
+	 *
+	 * @param out
+	 * @param body
+	 */
+	private void writeStream(OutputStream out, String body) {
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+		try {
+			writer.write(body);
+			writer.close();
+		} catch(IOException e) {
+			System.out.println( e.toString());
+		}
 	}
 }

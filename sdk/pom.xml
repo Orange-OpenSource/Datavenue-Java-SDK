@@ -60,7 +60,7 @@
 							<value>conf/log4j.properties</value>
 						</property>
 					</systemProperties>
-					<argLine>-Xms512m -Xmx1500m ${argLine}</argLine>
+					<!--argLine>-Xms512m -Xmx1500m ${argLine}</argLine -->
 					<parallel>methods</parallel>
 					<forkMode>pertest</forkMode>
 				</configuration>
@@ -245,6 +245,12 @@
 			<version>${jodatime-version}</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
+
 
 		<!-- test dependencies -->
 		<dependency>

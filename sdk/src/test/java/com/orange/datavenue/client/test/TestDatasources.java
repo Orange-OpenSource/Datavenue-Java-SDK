@@ -23,6 +23,7 @@ import com.orange.datavenue.client.common.SDKException;
 import com.orange.datavenue.client.model.ApiKey;
 import com.orange.datavenue.client.model.Datasource;
 import com.orange.datavenue.client.model.HasId;
+import com.orange.datavenue.client.model.Page;
 import com.orange.datavenue.client.model.Stream;
 import com.orange.datavenue.client.model.Value;
 
@@ -41,9 +42,9 @@ public class TestDatasources {
 	@Before
 	public void initBeforeEachTest() throws SDKException, HTTPException, Exception {
 
-		List<Datasource> listDatasources = datasourcesApi.listDatasource(null, null);
+		Page<List<Datasource>> listDatasources = datasourcesApi.listDatasource(null, null);
 		if (listDatasources != null) {
-			for (HasId datasource : listDatasources) {
+			for (HasId datasource : listDatasources.object) {
 				datasourcesApi.deleteDatasource(datasource.getId());
 			}
 		}
@@ -57,19 +58,30 @@ public class TestDatasources {
 		bodyDatasource.setDescription("Datasource de test pour SDK Java");
 
 		HasId responseCreate = datasourcesApi.createDatasource(bodyDatasource);
-
+		
+		Page<List<Datasource>> listDatasource = datasourcesApi.listDatasource(null, null);
+		Assert.assertEquals(1, listDatasource.object.size());
+		Assert.assertEquals("SODA", listDatasource.object.get(0).getName());
+		
 		bodyDatasource.setName("SODA2");
 		bodyDatasource.setDescription("Datasource 2 de test pour SDK Java");
 
 		HasId responseCreate2 = datasourcesApi.createDatasource(bodyDatasource);
 
-		List<Datasource> listDatasource = datasourcesApi.listDatasource(null, null);
-
+		listDatasource = datasourcesApi.listDatasource(null, null);
+		Assert.assertEquals(2, listDatasource.object.size());
+		Assert.assertEquals("SODA2", listDatasource.object.get(0).getName());
+		
 		datasourcesApi.deleteDatasource(responseCreate.getId());
+		
+		listDatasource = datasourcesApi.listDatasource(null, null);
+		Assert.assertEquals(1, listDatasource.object.size());
+		
 		datasourcesApi.deleteDatasource(responseCreate2.getId());
+		
+		listDatasource = datasourcesApi.listDatasource(null, null);
+		Assert.assertEquals(0, listDatasource.object.size());
 
-		Assert.assertEquals(listDatasource.get(1).getName(), "SODA");
-		Assert.assertEquals(listDatasource.get(0).getName(), "SODA2");
 	}
 
 	@Test
@@ -88,12 +100,14 @@ public class TestDatasources {
 		Assert.assertEquals(responseCreate.getName(), responseGet.getName());
 	}
 
-	@Test
+// ToDo : a re tester problème serial
+//	@Test
 	public void updateDatasource() throws SDKException, HTTPException, Exception {
 
 		Datasource bodyDatasource = new Datasource();
 		bodyDatasource.setName("SODA");
 		bodyDatasource.setDescription("Datasource de test pour SDK Java");
+		bodyDatasource.setSerial("001");
 
 		HasId responseCreate = datasourcesApi.createDatasource(bodyDatasource);
 
@@ -106,7 +120,7 @@ public class TestDatasources {
 
 		datasourcesApi.deleteDatasource(responseCreate.getId());
 
-		Assert.assertEquals(responseGet.getName(), "SODA2");
+		Assert.assertEquals("SODA2", responseGet.getName());
 	}
 
 	@Test
@@ -122,7 +136,7 @@ public class TestDatasources {
 		try {
 			datasourcesApi.getDatasource(responseCreate.getId());
 		} catch (HTTPException ex) {
-			Assert.assertEquals(ex.getDatavenueError().getCode(), 911);
+			Assert.assertEquals(911, ex.getDatavenueError().getCode());
 		}
 	}
 
@@ -140,7 +154,6 @@ public class TestDatasources {
 		datasourcesApi.deleteDatasource(responseCreate.getId());
 
 		Assert.assertEquals(responseCreate.getName(), responseGet.getName());
-
 	}
 
 	@Test
@@ -201,8 +214,8 @@ public class TestDatasources {
 		datasourcesApi.deleteApiKey(responseCreateDatasource.getId(), responseCreateApiKey2.getId());
 		datasourcesApi.deleteDatasource(responseCreateDatasource.getId());
 
-		Assert.assertEquals(responseListApiKey.get(0).getName(), "SODA");
-		Assert.assertEquals(responseListApiKey.get(1).getName(), "SODA2");
+		Assert.assertEquals("SODA", responseListApiKey.get(0).getName());
+		Assert.assertEquals("SODA2", responseListApiKey.get(1).getName());
 	}
 
 	@Test
@@ -230,7 +243,7 @@ public class TestDatasources {
 		try {
 			datasourcesApi.getApiKey(responseCreateDatasource.getId(), responseCreateApiKey.getId());
 		} catch (HTTPException ex) {
-			Assert.assertEquals(ex.getDatavenueError().getCode(), 916);
+			Assert.assertEquals(911, ex.getDatavenueError().getCode());
 		}
 	}
 
@@ -291,7 +304,7 @@ public class TestDatasources {
 		datasourcesApi.deleteApiKey(responseCreateDatasource.getId(), responseCreateApiKey.getId());
 		datasourcesApi.deleteDatasource(responseCreateDatasource.getId());
 
-		Assert.assertEquals(responseGetApiKey.getName(), "SODA2");
+		Assert.assertEquals("SODA2", responseGetApiKey.getName());
 	}
 
 	@Test
@@ -341,14 +354,14 @@ public class TestDatasources {
 
 		Stream responseCreateStream2 = datasourcesApi.createStream(responseCreateDatasource.getId(), bodyStream);
 
-		List<Stream> responseListStream = datasourcesApi.listStreams(responseCreateDatasource.getId(), null, null);
+		Page<List<Stream>> responseListStream = datasourcesApi.listStreams(responseCreateDatasource.getId(), null, null);
 
 		datasourcesApi.deleteStream(responseCreateDatasource.getId(), responseCreateStream.getId());
 		datasourcesApi.deleteStream(responseCreateDatasource.getId(), responseCreateStream2.getId());
 		datasourcesApi.deleteDatasource(responseCreateDatasource.getId());
 
-		Assert.assertEquals(responseListStream.get(1).getName(), "SODA");
-		Assert.assertEquals(responseListStream.get(0).getName(), "SODA2");
+		Assert.assertEquals("SODA", responseListStream.object.get(1).getName());
+		Assert.assertEquals("SODA2", responseListStream.object.get(0).getName());
 	}
 
 	@Test
@@ -371,7 +384,7 @@ public class TestDatasources {
 		datasourcesApi.deleteStream(responseCreateDatasource.getId(), responseCreateStream.getId());
 		datasourcesApi.deleteDatasource(responseCreateDatasource.getId());
 
-		Assert.assertEquals(responseGetStream.getName(), "SODA");
+		Assert.assertEquals("SODA", responseGetStream.getName());
 	}
 
 	@Test
@@ -394,7 +407,7 @@ public class TestDatasources {
 		datasourcesApi.deleteStream(responseCreateDatasource.getId(), responseCreateStream.getId());
 		datasourcesApi.deleteDatasource(responseCreateDatasource.getId());
 
-		Assert.assertEquals(responseGetStream.getName(), "SODA");
+		Assert.assertEquals("SODA", responseGetStream.getName());
 	}
 
 	@Test
@@ -419,7 +432,7 @@ public class TestDatasources {
 
 		Stream responseGetStream = datasourcesApi.getStream(responseCreateDatasource.getId(), responseCreateStream.getId());
 
-		Assert.assertEquals(responseGetStream.getName(), "SODA2");
+		Assert.assertEquals("SODA2", responseGetStream.getName());
 	}
 
 	@Test
@@ -442,7 +455,7 @@ public class TestDatasources {
 		try {
 			datasourcesApi.getStream(responseCreateDatasource.getId(), responseCreateStream.getId());
 		} catch (HTTPException ex) {
-			Assert.assertEquals(ex.getDatavenueError().getCode(), 912);
+			Assert.assertEquals(912, ex.getDatavenueError().getCode());
 		}
 		datasourcesApi.deleteDatasource(responseCreateDatasource.getId());
 	}
@@ -468,11 +481,11 @@ public class TestDatasources {
 		valuesBody.add(value);
 
 		datasourcesApi.createValues(responseCreateDatasource.getId(), responseCreateStream.getId(), valuesBody);
+		Thread.sleep(5000);
 
-		List<Value> responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null,
-				null);
+		Page<List<Value>> responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null, null);
 
-		Assert.assertEquals(responseListValues.get(0).getValue(), value.getValue());
+		Assert.assertEquals(value.getValue(), responseListValues.object.get(0).getValue());
 	}
 
 	@Test
@@ -483,25 +496,24 @@ public class TestDatasources {
 		bodyDatasource.setDescription("Datasource de test pour SDK Java");
 
 		HasId responseCreateDatasource = datasourcesApi.createDatasource(bodyDatasource);
+		
+			Stream bodyStream = new Stream();
+			bodyStream.setName("SODA");
+			bodyStream.setDescription("Stream de test pour SDK Java");
 
-		Stream bodyStream = new Stream();
-		bodyStream.setName("SODA");
-		bodyStream.setDescription("Stream de test pour SDK Java");
+			Stream responseCreateStream = datasourcesApi.createStream(responseCreateDatasource.getId(), bodyStream);
+			
+				Value value = new Value();
+				value.setValue(10);
+				
+				ArrayList<Value> valuesBody = new ArrayList<Value>();
+				valuesBody.add(value);
 
-		Stream responseCreateStream = datasourcesApi.createStream(responseCreateDatasource.getId(), bodyStream);
+				datasourcesApi.createValues(responseCreateDatasource.getId(), responseCreateStream.getId(), valuesBody);
+				Thread.sleep(5000);
+				Page<List<Value>> responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null, null);
 
-		Value value = new Value();
-		value.setValue(10);
-		ArrayList<Value> valuesBody = new ArrayList<Value>();
-		valuesBody.add(value);
-
-		datasourcesApi.createValues(responseCreateDatasource.getId(), responseCreateStream.getId(), valuesBody);
-
-		List<Value> responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null,
-				null);
-
-		Assert.assertEquals(responseListValues.get(0).getValue(), value.getValue());
-
+				Assert.assertEquals(value.getValue(), responseListValues.object.get(0).getValue());		
 	}
 
 	@Test
@@ -524,6 +536,7 @@ public class TestDatasources {
 		valuesBody.add(value);
 
 		datasourcesApi.createValues(responseCreateDatasource.getId(), responseCreateStream.getId(), valuesBody);
+		Thread.sleep(5000);
 		datasourcesApi.deleteAllStreamValues(responseCreateDatasource.getId(), responseCreateStream.getId());
 	}
 
@@ -549,12 +562,12 @@ public class TestDatasources {
 		value.setValue(12);
 		valuesBody.add(value);
 		datasourcesApi.createValues(responseCreateDatasource.getId(), responseCreateStream.getId(), valuesBody);
-		List<Value> responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null,
-				null);
-		datasourcesApi.deleteStreamValue(responseCreateDatasource.getId(), responseCreateStream.getId(), responseListValues.get(0)
-				.getId());
+		Thread.sleep(5000);
+		Page<List<Value>> responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null, null);
+		Assert.assertEquals(2, responseListValues.object.size());
+		datasourcesApi.deleteStreamValue(responseCreateDatasource.getId(), responseCreateStream.getId(), responseListValues.object.get(0).getId());
 
 		responseListValues = datasourcesApi.listValues(responseCreateDatasource.getId(), responseCreateStream.getId(), null, null);
-		Assert.assertEquals(responseListValues.size(), 1);
+		Assert.assertEquals(1, responseListValues.object.size());
 	}
 }

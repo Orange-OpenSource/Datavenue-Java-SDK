@@ -11,6 +11,8 @@ package com.orange.datavenue.client.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,8 +20,10 @@ import com.orange.datavenue.client.Config;
 import com.orange.datavenue.client.api.AccountsApi;
 import com.orange.datavenue.client.common.HTTPException;
 import com.orange.datavenue.client.common.SDKException;
+import com.orange.datavenue.client.model.Account;
 import com.orange.datavenue.client.model.AccountsUpdate;
 import com.orange.datavenue.client.model.MasterKey;
+import com.orange.datavenue.client.model.PrimaryMasterKey;
 
 public class TestAccount {
 
@@ -32,50 +36,62 @@ public class TestAccount {
 	public static void initBeforeTestClass() throws SDKException {
 		System.setProperty ("jsse.enableSNIExtension", "false");
 		accountsApi = new AccountsApi(cfg);
-
 	}
 
 	@Test
 	public void getMyAccount() throws SDKException, HTTPException, Exception {
 
-		accountsApi.getAccount(accountID);
+		Account account = accountsApi.getAccount(accountID);
+		Assert.assertNotNull(account);
+		Assert.assertEquals(accountID, account.getId());
 
 		AccountsUpdate body = new AccountsUpdate();
-		body.setFirstname("Mathieu");
-		body.setLastname("MELIS");
+		
+		String firstName = "FirstName_" + (int)(Math.random()*1000);
+		String lastName = "LastName_" + (int)(Math.random()*1000);
+		String email = firstName + "@datavenue.com";
+		
+		body.setFirstname(firstName);
+		body.setLastname(lastName);
 		body.setOpeClientId(Constant.OPE_KEY);
-		body.setEmail("mathieu.melis@orange.com");
+		body.setEmail(email);
 		body.setUserPassword(Constant.PASSWORD);
 
 		accountsApi.updateAccount(accountID, body);
 
-		accountsApi.getAccount(accountID);
-
+		account = accountsApi.getAccount(accountID);
+		Assert.assertNotNull(account);
+		Assert.assertEquals(accountID, account.getId());
+		Assert.assertEquals(firstName, account.getFirstname());
+		Assert.assertEquals(lastName, account.getLastname());
+		Assert.assertEquals(email, account.getEmail());
 	}
 	
 	@Test
 	public void getPMKey() throws SDKException, HTTPException, Exception {
-
-		accountsApi.getPrimaryMasterKey(accountID);
-
+		PrimaryMasterKey pmk = accountsApi.getPrimaryMasterKey(accountID);
+		Assert.assertNotNull(pmk);
 	}
 
 	@Test
-	public void listAPIKey() throws SDKException, HTTPException, Exception {
-
+	public void listMasterKey() throws SDKException, HTTPException, Exception {
 		List<MasterKey> listMasterKey = accountsApi.listMasterKey(accountID, null, null);
-		System.out.println(listMasterKey);
+		Assert.assertNotNull(listMasterKey);
+		Assert.assertTrue(listMasterKey.size()>0);
 	}
 
 	@Test
-	public void getOneAPIKey() throws SDKException, HTTPException, Exception {
-
-		accountsApi.getMasterKey(accountID, "127acaa62c4942d49d8e4ecbfe26bffa");
-
+	public void getOneMasterKey() throws SDKException, HTTPException, Exception {
+		List<MasterKey> listMasterKey = accountsApi.listMasterKey(accountID, null, null);
+		Assert.assertNotNull(listMasterKey);
+		Assert.assertTrue(listMasterKey.size()>0);
+		
+		MasterKey mk = accountsApi.getMasterKey(accountID, listMasterKey.get(0).getId());
+		Assert.assertNotNull(mk);
 	}
 
 	@Test
-	public void createAPIKey() throws SDKException, HTTPException, Exception {
+	public void createMasterKey() throws SDKException, HTTPException, Exception {
 
 		MasterKey body = new MasterKey();
 
@@ -86,12 +102,26 @@ public class TestAccount {
 		rights.add("GET");
 		body.setRights(rights);
 
-		MasterKey create_AccountsApi_0 = accountsApi.createMasterKey(accountID, body);
-
-		accountsApi.getMasterKey(accountID, create_AccountsApi_0.getId());
-
-		accountsApi.deleteMasterKey(accountID, create_AccountsApi_0.getId());
-
+		MasterKey newMasterKey = accountsApi.createMasterKey(accountID, body);
+		Assert.assertNotNull(newMasterKey);
+		
+		MasterKey readMasterKey = accountsApi.getMasterKey(accountID, newMasterKey.getId());
+		Assert.assertNotNull(readMasterKey);
+		Assert.assertEquals(newMasterKey.getId(), readMasterKey.getId());
+		
+		MasterKey regeneratedMasterKey = accountsApi.regenerateMasterKey(accountID, newMasterKey.getId());
+		
+		Assert.assertNotNull(regeneratedMasterKey);
+		Assert.assertEquals(readMasterKey.getId(), regeneratedMasterKey.getId());
+		Assert.assertFalse(readMasterKey.getValue().equals(regeneratedMasterKey.getValue()));
+		
+		accountsApi.deleteMasterKey(accountID, newMasterKey.getId());
+		
+		try {
+			readMasterKey = accountsApi.getMasterKey(accountID, newMasterKey.getId());
+		} catch(HTTPException e) {
+			Assert.assertEquals(404, e.getCodeErrorHTTP());
+		}
 	}
 
 }

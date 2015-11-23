@@ -8,7 +8,6 @@
 
 package com.orange.datavenue.client.api;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +15,12 @@ import java.util.Map;
 import com.orange.datavenue.client.Config;
 import com.orange.datavenue.client.common.ApiInvoker;
 import com.orange.datavenue.client.common.HTTPException;
+import com.orange.datavenue.client.common.HttpResponse;
 import com.orange.datavenue.client.common.SDKException;
 import com.orange.datavenue.client.model.ApiKey;
+import com.orange.datavenue.client.model.Page;
 import com.orange.datavenue.client.model.Prototype;
+import com.orange.datavenue.client.model.Response;
 import com.orange.datavenue.client.model.Stream;
 import com.orange.datavenue.client.model.Value;
 
@@ -30,12 +32,15 @@ import com.orange.datavenue.client.model.Value;
  */
 public class PrototypeApi {
 
-	private static final String PAGE_SIZE_PARAM = "pagesize";
-	private static final String PAGE_NUMBER_PARAM = "pagenumber";
-	
 	final String basePath;
 	final String opeKey;
 	final String XISSKey;
+
+	private static final String PAGE_SIZE_PARAM = "pagesize";
+	private static final String PAGE_NUMBER_PARAM = "pagenumber";
+	
+	private static final String RESULT_COUNT_HEADER = "X-Result-Count";
+	private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
 	
 	ApiInvoker apiInvoker = ApiInvoker.getInstance();
 
@@ -43,6 +48,16 @@ public class PrototypeApi {
 		this.basePath = config.getBaseUrl();
 		this.opeKey = config.getOpeKey();
 		this.XISSKey =config.getXISSKey();
+	}
+	
+	private void feedHeaders(HttpResponse httpResponse, Page pageResult) {
+		if (httpResponse.headers.containsKey(RESULT_COUNT_HEADER)) {
+			pageResult.resultCount = Integer.parseInt(httpResponse.headers.get(RESULT_COUNT_HEADER).get(0));
+		}
+
+		if (httpResponse.headers.containsKey(TOTAL_COUNT_HEADER)) {
+			pageResult.totalCount = Integer.parseInt(httpResponse.headers.get(TOTAL_COUNT_HEADER).get(0));
+		}
 	}
 
 	/**
@@ -77,13 +92,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Prototype) ApiInvoker.deserialize(response, "", Prototype.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (Prototype) ApiInvoker.deserialize(httpResponse.body, "", Prototype.class);
 	}
 
 	/**
@@ -104,7 +114,7 @@ public class PrototypeApi {
 	 *             <li>Code 928 : Invalid input data (Empty field)</li>
 	 *             </ul>
 	 */
-	public Prototype updatePrototype(String prototypeId, Prototype body) throws SDKException, HTTPException {
+	public void updatePrototype(String prototypeId, Prototype body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (prototypeId == null) {
@@ -123,13 +133,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Prototype) ApiInvoker.deserialize(response, "", Prototype.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -144,7 +148,7 @@ public class PrototypeApi {
 	 *             <li>Code 913 : The request prototype is not found</li>
 	 *             </ul>
 	 */
-	public Prototype deletePrototype(String prototypeId) throws SDKException, HTTPException {
+	public void deletePrototype(String prototypeId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (prototypeId == null) {
@@ -163,13 +167,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Prototype) ApiInvoker.deserialize(response, "", Prototype.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -202,13 +200,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Prototype) ApiInvoker.deserialize(response, "", Prototype.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		return (Prototype) ApiInvoker.deserialize(httpResponse.body, "", Prototype.class);
 	}
 
 	/**
@@ -244,13 +237,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<Prototype>) ApiInvoker.deserialize(response, "List", Prototype.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (List<Prototype>) ApiInvoker.deserialize(httpResponse.body, "List", Prototype.class);
 	}
 
 	/**
@@ -290,13 +278,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		return (ApiKey) ApiInvoker.deserialize(httpResponse.body, "", ApiKey.class);
 	}
 
 	/**
@@ -340,13 +323,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<ApiKey>) ApiInvoker.deserialize(response, "List", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (List<ApiKey>) ApiInvoker.deserialize(httpResponse.body, "List", ApiKey.class);
 	}
 
 	/**
@@ -385,13 +363,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (ApiKey) ApiInvoker.deserialize(httpResponse.body, "", ApiKey.class);
 	}
 
 	/**
@@ -414,7 +387,7 @@ public class PrototypeApi {
 	 *             <li>Code 934 : Naming conflict</li>
 	 *             </ul>
 	 */
-	public ApiKey updateApiKeys(String prototypeId, String keyId, ApiKey body) throws SDKException, HTTPException {
+	public void updateApiKeys(String prototypeId, String keyId, ApiKey body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (prototypeId == null || keyId == null) {
@@ -435,13 +408,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -459,7 +426,7 @@ public class PrototypeApi {
 	 *             <li>Code 916 : Resource not found (ApiKey not found)</li>
 	 *             </ul>
 	 */
-	public ApiKey deleteApiKey(String prototypeId, String keyId) throws SDKException, HTTPException {
+	public void deleteApiKey(String prototypeId, String keyId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (prototypeId == null || keyId == null) {
@@ -480,13 +447,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -525,13 +486,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (ApiKey) ApiInvoker.deserialize(httpResponse.body, "", ApiKey.class);
 	}
 
 	/**
@@ -575,13 +531,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<Stream>) ApiInvoker.deserialize(response, "List", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (List<Stream>) ApiInvoker.deserialize(httpResponse.body, "List", Stream.class);
 	}
 
 	/**
@@ -622,13 +573,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		return (Stream) ApiInvoker.deserialize(httpResponse.body, "", Stream.class);
 	}
 
 	/**
@@ -668,13 +614,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (Stream) ApiInvoker.deserialize(httpResponse.body, "", Stream.class);
 	}
 
 	/**
@@ -697,7 +638,7 @@ public class PrototypeApi {
 	 *             <li>Code 928 : Invalid input data (Empty input data)</li>
 	 *             </ul>
 	 */
-	public Stream updateStream(String prototypeId, String streamId, Stream body) throws SDKException, HTTPException {
+	public void updateStream(String prototypeId, String streamId, Stream body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (prototypeId == null || streamId == null) {
@@ -718,13 +659,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -744,7 +679,7 @@ public class PrototypeApi {
 	 *             <li>Code 923 : Invalid input data</li>
 	 *             </ul>
 	 */
-	public Stream deleteStream(String prototypeId, String streamId) throws SDKException, HTTPException {
+	public void deleteStream(String prototypeId, String streamId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (prototypeId == null || streamId == null) {
@@ -765,13 +700,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -798,7 +727,7 @@ public class PrototypeApi {
 	 *             <li>Code 927 : Invalid input data</li>
 	 *             </ul>
 	 */
-	public List<Value> listValue(String prototypeId, String streamId, String page, String size) throws SDKException, HTTPException,
+	public Page<List<Value>> listValues(String prototypeId, String streamId, String page, String size) throws SDKException, HTTPException,
 			Exception {
 		Object postBody = null;
 		// verify required params are set
@@ -824,13 +753,13 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<Value>) ApiInvoker.deserialize(response, "List", Value.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		
+		Page<List<Value>> pageResult = new Page<List<Value>>();
+		pageResult.object = (List<Value>) ApiInvoker.deserialize(httpResponse.body, "List", Value.class);
+		feedHeaders(httpResponse, pageResult);
 
+		return pageResult;
 	}
 
 	/**
@@ -857,7 +786,7 @@ public class PrototypeApi {
 	 *             <li>Code 928 : Invalid input data (Empty field)</li>
 	 *             </ul>
 	 */
-	public List<Value> createValue(String prototypeId, String streamId, List<Value> body) throws SDKException, HTTPException,
+	public List<Response> createValue(String prototypeId, String streamId, List<Value> body) throws SDKException, HTTPException,
 			Exception {
 		Object postBody = body;
 		// verify required params are set
@@ -879,17 +808,8 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			if ("".equals(response)) {
-				return new ArrayList<Value>();
-			} else {
-				return (List<Value>) ApiInvoker.deserialize(response, "", Value.class);
-			}
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		return (List<Response>) ApiInvoker.deserialize(httpResponse.body, "", List.class);
 	}
 
 	/**
@@ -928,13 +848,7 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return;
-		} else {
-			return;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -977,12 +891,6 @@ public class PrototypeApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return;
-		} else {
-			return;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 }

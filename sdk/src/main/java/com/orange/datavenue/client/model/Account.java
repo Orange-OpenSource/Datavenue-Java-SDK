@@ -64,9 +64,6 @@ public class Account {
 	 */
 	private String opeClientId = null;
 
-	/** Secret for authentication OAuth 2.0 APIGEE */
-	private String opeClientSecret = null;
-
 	/**
 	 * Portal password :
 	 * <ul>
@@ -81,16 +78,6 @@ public class Account {
 	 * service. Ex: d985f3b7ad9f027faab453635c11d06b
 	 */
 	private PrimaryMasterKey primaryMasterKey = null;
-
-	/**
-	 * Application ID generate by OPE and propagate to Datavenue. Size :
-	 * <ul>
-	 * <li>Min : 8 character</li>
-	 * <li>Max : 64 characters</li>
-	 * </ul>
-	 * Ex : 5eE423319aC44Bc380D324A0ce035F73
-	 */
-	private String opeApplicationId = null;
 
 	/** Account master key*/
 	private MasterKey masterKey = null;
@@ -230,49 +217,11 @@ public class Account {
 	/**
 	 * Set the account primaryMasterKey
 	 * 
-	 * @param primaryMasterKeyb
+	 * @param primaryMasterKey
 	 *            the new account primaryMasterKey
 	 */
 	public void setPrimaryMasterKey(PrimaryMasterKey primaryMasterKey) {
 		this.primaryMasterKey = primaryMasterKey;
-	}
-
-	/**
-	 * Get the OPE client secret
-	 * 
-	 * @return opeClientSecret the OPE client secret
-	 */
-	public String getOpeClientSecret() {
-		return opeClientSecret;
-	}
-
-	/**
-	 * Set the OPE client secret
-	 * 
-	 * @param opeClientSecret
-	 *            the new account ope client secret
-	 */
-	public void setOpeClientSecret(String opeClientSecret) {
-		this.opeClientSecret = opeClientSecret;
-	}
-
-	/**
-	 * Get the OPE application id
-	 * 
-	 * @return opeApplicationId the account opeApplicationId
-	 */
-	public String getOpeApplicationId() {
-		return opeApplicationId;
-	}
-
-	/**
-	 * Set the OPE application secret
-	 * 
-	 * @param opeApplicationId
-	 *            the new account opeApplicationSecret
-	 */
-	public void setOpeApplicationId(String opeApplicationId) {
-		this.opeApplicationId = opeApplicationId;
 	}
 
 	/**
@@ -362,8 +311,6 @@ public class Account {
 		sb.append("  opeClientId: ").append(opeClientId).append("\n");
 		sb.append("  userPassword: ").append(userPassword).append("\n");
 		sb.append("  primaryMasterKey: ").append(primaryMasterKey).append("\n");
-		sb.append("  opeClientSecret: ").append(opeClientSecret).append("\n");
-		sb.append("  opeApplicationId: ").append(opeApplicationId).append("\n");
 		sb.append("  masterKey: ").append(masterKey).append("\n");
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  created: ").append(created).append("\n");

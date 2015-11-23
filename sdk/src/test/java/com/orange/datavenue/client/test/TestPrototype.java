@@ -22,6 +22,7 @@ import com.orange.datavenue.client.api.PrototypeApi;
 import com.orange.datavenue.client.common.HTTPException;
 import com.orange.datavenue.client.common.SDKException;
 import com.orange.datavenue.client.model.ApiKey;
+import com.orange.datavenue.client.model.Page;
 import com.orange.datavenue.client.model.Prototype;
 import com.orange.datavenue.client.model.Stream;
 import com.orange.datavenue.client.model.Value;
@@ -58,10 +59,10 @@ public class TestPrototype {
 		Prototype responseCreation = prototypesApi.createPrototype(body);
 
 		Prototype prototypes = prototypesApi.getPrototype(responseCreation.getId());
-
-		prototypesApi.deletePrototype(responseCreation.getId());
-
+		
+		Assert.assertEquals(responseCreation.getId(), prototypes.getId());
 		Assert.assertEquals(body.getName(), prototypes.getName());
+		prototypesApi.deletePrototype(responseCreation.getId());
 	}
 
 	@Test
@@ -97,7 +98,7 @@ public class TestPrototype {
 			prototypesApi.getPrototype(responseCreation.getId());
 
 		} catch (HTTPException ex) {
-			Assert.assertEquals(ex.getDatavenueError().getCode(), 913);
+			Assert.assertEquals(913, ex.getDatavenueError().getCode());
 		}
 	}
 
@@ -253,7 +254,7 @@ public class TestPrototype {
 		prototypesApi.deleteApiKey(responseCreationPrototype.getId(), responseCreationApiKey.getId());
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
 
-		Assert.assertEquals(responseGetApiKey.getName(), "SODA2");
+		Assert.assertEquals("SODA2", responseGetApiKey.getName());
 	}
 
 	@Test
@@ -279,7 +280,7 @@ public class TestPrototype {
 		try {
 			prototypesApi.getApiKeys(responseCreationPrototype.getId(), responseCreationApiKey.getId());
 		} catch (HTTPException ex) {
-			Assert.assertEquals(ex.getDatavenueError().getCode(), 916);
+			Assert.assertEquals(913, ex.getDatavenueError().getCode());
 		}
 	}
 
@@ -350,7 +351,7 @@ public class TestPrototype {
 		prototypesApi.deleteStream(responseCreationPrototype.getId(), responsePostSreams.getId());
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
 
-		Assert.assertEquals(responseGetSreams.getName(), "SODA");
+		Assert.assertEquals("SODA", responseGetSreams.getName());
 
 	}
 
@@ -370,7 +371,7 @@ public class TestPrototype {
 		prototypesApi.deleteStream(responseCreationPrototype.getId(), responsePostSreams.getId());
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
 
-		Assert.assertEquals(responseGetSreams.getName(), "SODA");
+		Assert.assertEquals("SODA", responseGetSreams.getName());
 	}
 
 	@Test
@@ -411,7 +412,7 @@ public class TestPrototype {
 		try {
 			prototypesApi.getStreams(responseCreationPrototype.getId(), responsePostSreams.getId());
 		} catch (HTTPException ex) {
-			Assert.assertEquals(ex.getDatavenueError().getCode(), 912);
+			Assert.assertEquals(912, ex.getDatavenueError().getCode());
 		}
 
 	}
@@ -430,13 +431,14 @@ public class TestPrototype {
 
 		Value value = new Value();
 		value.setValue(10);
-		ArrayList<Value> valuesBody = new ArrayList<Value>();
+		List<Value> valuesBody = new ArrayList<Value>();
 		valuesBody.add(value);
 		prototypesApi.createValue(responseCreationPrototype.getId(), responsePostSreams.getId(), valuesBody);
-		List<Value> listValues = prototypesApi.listValue(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
+		Thread.sleep(5000);
+		Page<List<Value>> pageValues = prototypesApi.listValues(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
+		Assert.assertEquals(value.getValue(), pageValues.object.get(0).getValue());
+		
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
-
-		Assert.assertEquals(value.getValue(), listValues.get(0).getValue());
 	}
 
 	@Test
@@ -454,13 +456,14 @@ public class TestPrototype {
 
 		Value value = new Value();
 		value.setValue(10);
-		ArrayList<Value> valuesBody = new ArrayList<Value>();
+		List<Value> valuesBody = new ArrayList<Value>();
 		valuesBody.add(value);
 		prototypesApi.createValue(responseCreationPrototype.getId(), responsePostSreams.getId(), valuesBody);
-		List<Value> listValues = prototypesApi.listValue(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
+		Thread.sleep(5000);
+		Page<List<Value>> pageValues = prototypesApi.listValues(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
+		Assert.assertEquals(value.getValue(), pageValues.object.get(0).getValue());
+		
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
-		Assert.assertEquals(value.getValue(), listValues.get(0).getValue());
-
 	}
 
 	@Test
@@ -480,6 +483,7 @@ public class TestPrototype {
 		ArrayList<Value> valuesBody = new ArrayList<Value>();
 		valuesBody.add(value);
 		prototypesApi.createValue(responseCreationPrototype.getId(), responsePostSreams.getId(), valuesBody);
+		Thread.sleep(5000);
 		prototypesApi.deleteAllStreamValues(responseCreationPrototype.getId(), responsePostSreams.getId());
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
 	}
@@ -503,11 +507,14 @@ public class TestPrototype {
 		value.setValue(12);
 		valuesBody.add(value);
 		prototypesApi.createValue(responseCreationPrototype.getId(), responsePostSreams.getId(), valuesBody);
-		List<Value> values = prototypesApi.listValue(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
-		prototypesApi.deleteStreamValue(responseCreationPrototype.getId(), responsePostSreams.getId(), values.get(0).getId());
-		values = prototypesApi.listValue(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
+		Thread.sleep(15000);
+		Page<List<Value>> pageValue = prototypesApi.listValues(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
+		Assert.assertEquals(2, pageValue.object.size());
+		prototypesApi.deleteStreamValue(responseCreationPrototype.getId(), responsePostSreams.getId(), pageValue.object.get(0).getId());
+		
+		pageValue = prototypesApi.listValues(responseCreationPrototype.getId(), responsePostSreams.getId(), null, null);
 		prototypesApi.deletePrototype(responseCreationPrototype.getId());
-		Assert.assertEquals(values.size(), 1);
+		Assert.assertEquals(1, pageValue.object.size());
 
 	}
 }

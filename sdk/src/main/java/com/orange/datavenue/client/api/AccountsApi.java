@@ -5,6 +5,7 @@
  * license which can be found in the file 'LICENSE' in this package distribution 
  * or at 'http://www.apache.org/licenses/LICENSE-2.0'. 
  */
+
 package com.orange.datavenue.client.api;
 
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
 import com.orange.datavenue.client.Config;
 import com.orange.datavenue.client.common.ApiInvoker;
 import com.orange.datavenue.client.common.HTTPException;
+import com.orange.datavenue.client.common.HttpResponse;
 import com.orange.datavenue.client.common.SDKException;
 import com.orange.datavenue.client.model.Account;
 import com.orange.datavenue.client.model.AccountsUpdate;
@@ -21,13 +23,12 @@ import com.orange.datavenue.client.model.MasterKey;
 import com.orange.datavenue.client.model.PrimaryMasterKey;
 
 public class AccountsApi {
-	
-	private static final String PAGE_SIZE_PARAM = "pagesize";
-	private static final String PAGE_NUMBER_PARAM = "pagenumber";
-	
 	final String basePath;
 	final String opeKey;
 	final String XISSKey;
+
+	private static final String PAGE_SIZE_PARAM = "pagesize";
+	private static final String PAGE_NUMBER_PARAM = "pagenumber";
 	
 	ApiInvoker apiInvoker = ApiInvoker.getInstance();
 
@@ -70,13 +71,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Account) ApiInvoker.deserialize(response, "", Account.class);
-		} else {
-			return null;
-		}
+		HttpResponse response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (Account) ApiInvoker.deserialize(response.body, "", Account.class);
 	}
 
 	/**
@@ -107,8 +104,7 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -139,13 +135,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (PrimaryMasterKey) ApiInvoker.deserialize(response, "", PrimaryMasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (PrimaryMasterKey) ApiInvoker.deserialize(httpResponse.body, "", PrimaryMasterKey.class);
 	}
 
 	/**
@@ -176,13 +168,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (PrimaryMasterKey) ApiInvoker.deserialize(response, "", PrimaryMasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (PrimaryMasterKey) ApiInvoker.deserialize(httpResponse.body, "", PrimaryMasterKey.class);
 	}
 
 	
@@ -220,13 +208,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<MasterKey>) ApiInvoker.deserialize(response, "List", MasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (List<MasterKey>) ApiInvoker.deserialize(httpResponse.body, "List", MasterKey.class);
 	}
 
 	/**
@@ -258,13 +242,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (MasterKey) ApiInvoker.deserialize(response, "", MasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (MasterKey) ApiInvoker.deserialize(httpResponse.body, "", MasterKey.class);
 	}
 
 	/**
@@ -298,13 +278,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (MasterKey) ApiInvoker.deserialize(response, "", MasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (MasterKey) ApiInvoker.deserialize(httpResponse.body, "", MasterKey.class);
 	}
 
 	/**
@@ -337,8 +313,7 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -371,13 +346,9 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (MasterKey) ApiInvoker.deserialize(response, "", MasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (MasterKey) ApiInvoker.deserialize(httpResponse.body, "", MasterKey.class);
 	}
 
 	/**
@@ -410,12 +381,8 @@ public class AccountsApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (MasterKey) ApiInvoker.deserialize(response, "", MasterKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (MasterKey) ApiInvoker.deserialize(httpResponse.body, "", MasterKey.class);
 	}
 }

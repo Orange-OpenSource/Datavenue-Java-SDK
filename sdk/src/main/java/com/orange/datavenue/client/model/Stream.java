@@ -39,7 +39,10 @@ public class Stream {
 	private Map<String, Link> values = null;
 
 	/** The stream location */
-	private Location location = null;
+	private Double[] location = null;
+
+	/** The stream callback */
+	private Callback callback = null;
 
 	/** The stream URL */
 	private Link link = null;
@@ -172,7 +175,7 @@ public class Stream {
 	 * 
 	 * @return location the stream location
 	 */
-	public Location getLocation() {
+	public Double[] getLocation() {
 		return location;
 	}
 
@@ -182,8 +185,26 @@ public class Stream {
 	 * @param location
 	 *            the new stream location
 	 */
-	public void setLocation(Location location) {
+	public void setLocation(Double[] location) {
 		this.location = location;
+	}
+
+	/**
+	 * Get the stream callback
+	 *
+	 * @return callback the stream callback
+	 */
+	public Callback getCallback() {
+		return this.callback;
+	}
+
+	/**
+	 * Set the stream callback
+	 *
+	 * @param callback
+	 */
+	public void setCallback(Callback callback) {
+		this.callback = callback;
 	}
 
 	/**

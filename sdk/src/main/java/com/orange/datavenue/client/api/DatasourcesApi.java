@@ -8,7 +8,6 @@
 
 package com.orange.datavenue.client.api;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +15,12 @@ import java.util.Map;
 import com.orange.datavenue.client.Config;
 import com.orange.datavenue.client.common.ApiInvoker;
 import com.orange.datavenue.client.common.HTTPException;
+import com.orange.datavenue.client.common.HttpResponse;
 import com.orange.datavenue.client.common.SDKException;
 import com.orange.datavenue.client.model.ApiKey;
 import com.orange.datavenue.client.model.Datasource;
+import com.orange.datavenue.client.model.Page;
+import com.orange.datavenue.client.model.Response;
 import com.orange.datavenue.client.model.Stream;
 import com.orange.datavenue.client.model.Value;
 
@@ -29,13 +31,16 @@ import com.orange.datavenue.client.model.Value;
  *
  */
 public class DatasourcesApi {
-	
-	private static final String PAGE_SIZE_PARAM = "pagesize";
-	private static final String PAGE_NUMBER_PARAM = "pagenumber";
 
 	final String basePath;
 	final String opeKey;
 	final String XISSKey;
+
+	private static final String PAGE_SIZE_PARAM = "pagesize";
+	private static final String PAGE_NUMBER_PARAM = "pagenumber";
+
+	private static final String RESULT_COUNT_HEADER = "X-Result-Count";
+	private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
 	
 	ApiInvoker apiInvoker = ApiInvoker.getInstance();
 
@@ -43,6 +48,16 @@ public class DatasourcesApi {
 		this.basePath = config.getBaseUrl();
 		this.opeKey = config.getOpeKey();
 		this.XISSKey = config.getXISSKey();
+	}
+
+	private void feedHeaders(HttpResponse httpResponse, Page pageResult) {
+		if (httpResponse.headers.containsKey(RESULT_COUNT_HEADER)) {
+			pageResult.resultCount = Integer.parseInt(httpResponse.headers.get(RESULT_COUNT_HEADER).get(0));
+		}
+
+		if (httpResponse.headers.containsKey(TOTAL_COUNT_HEADER)) {
+			pageResult.totalCount = Integer.parseInt(httpResponse.headers.get(TOTAL_COUNT_HEADER).get(0));
+		}
 	}
 
 	/**
@@ -59,7 +74,7 @@ public class DatasourcesApi {
 	 *             <li>Code 925 : Invalid input data</li>
 	 *             </ul>
 	 */
-	public List<Datasource> listDatasource(String page, String size) throws SDKException, HTTPException {
+	public Page<List<Datasource>> listDatasource(String page, String size) throws SDKException, HTTPException {
 		Object postBody = null;
 		// create path and map variables
 		String path = "/datasources".replaceAll("\\{format\\}", "json");
@@ -77,14 +92,14 @@ public class DatasourcesApi {
 		headerParams.put("X-ISS-Key", XISSKey);
 		
 		String contentType =  "application/json";
-		
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<Datasource>) ApiInvoker.deserialize(response, "List", Datasource.class);
-		} else {
-			return null;
-		}
 
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+
+		Page<List<Datasource>> pageResult = new Page<List<Datasource>>();
+		pageResult.object = (List<Datasource>) ApiInvoker.deserialize(httpResponse.body, "List", Datasource.class);
+		feedHeaders(httpResponse, pageResult);
+
+		return pageResult;
 	}
 
 	/**
@@ -119,13 +134,9 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Datasource) ApiInvoker.deserialize(response, "", Datasource.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (Datasource) ApiInvoker.deserialize(httpResponse.body, "", Datasource.class);
 	}
 
 	/**
@@ -144,7 +155,7 @@ public class DatasourcesApi {
 	 *             <li>Code 924 : Invalid input data (Bad field format)</li>
 	 *             </ul>
 	 */
-	public Datasource updateDatasource(String datasourceId, Datasource body) throws SDKException, HTTPException {
+	public void updateDatasource(String datasourceId, Datasource body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (datasourceId == null) {
@@ -163,13 +174,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Datasource) ApiInvoker.deserialize(response, "", Datasource.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -184,7 +189,7 @@ public class DatasourcesApi {
 	 *             <li>Code 911 : Resource not found</li>
 	 *             </ul>
 	 */
-	public Datasource deleteDatasource(String datasourceId) throws SDKException, HTTPException {
+	public void deleteDatasource(String datasourceId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (datasourceId == null) {
@@ -203,13 +208,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Datasource) ApiInvoker.deserialize(response, "", Datasource.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -242,13 +241,9 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Datasource) ApiInvoker.deserialize(response, "", Datasource.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (Datasource) ApiInvoker.deserialize(httpResponse.body, "", Datasource.class);
 	}
 
 	/**
@@ -288,13 +283,9 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
 
+		return (ApiKey) ApiInvoker.deserialize(httpResponse.body, "", ApiKey.class);
 	}
 
 	/**
@@ -330,21 +321,16 @@ public class DatasourcesApi {
 		Map<String, String> formParams = new HashMap<String, String>();
 
 		if (!"null".equals(String.valueOf(page)))
-			queryParams.put(PAGE_NUMBER_PARAM, String.valueOf(page));
+			queryParams.put("page", String.valueOf(page));
 		if (!"null".equals(String.valueOf(size)))
-			queryParams.put(PAGE_SIZE_PARAM, String.valueOf(size));
+			queryParams.put("size", String.valueOf(size));
 		headerParams.put(ApiInvoker.OPE_KEY_NAME, opeKey);
 		headerParams.put("X-ISS-Key", XISSKey);
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<ApiKey>) ApiInvoker.deserialize(response, "List", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (List<ApiKey>) ApiInvoker.deserialize(httpResponse.body, "List", ApiKey.class);
 	}
 
 	/**
@@ -362,7 +348,7 @@ public class DatasourcesApi {
 	 *             <li>Code 916 : Resource not found (ApiKey not found)</li>
 	 *             </ul>
 	 */
-	public ApiKey deleteApiKey(String datasourceId, String keyId) throws SDKException, HTTPException {
+	public void deleteApiKey(String datasourceId, String keyId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (datasourceId == null || keyId == null) {
@@ -383,13 +369,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -428,13 +408,8 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (ApiKey) ApiInvoker.deserialize(httpResponse.body, "", ApiKey.class);
 	}
 
 	/**
@@ -457,7 +432,7 @@ public class DatasourcesApi {
 	 *             <li>Code 934 : Naming conflict</li>
 	 *             </ul>
 	 */
-	public ApiKey updateApiKey(String datasourceId, String keyId, ApiKey body) throws SDKException, HTTPException {
+	public void updateApiKey(String datasourceId, String keyId, ApiKey body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (datasourceId == null || keyId == null) {
@@ -478,13 +453,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -523,13 +492,8 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (ApiKey) ApiInvoker.deserialize(response, "", ApiKey.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (ApiKey) ApiInvoker.deserialize(httpResponse.body, "", ApiKey.class);
 	}
 
 	/**
@@ -549,7 +513,7 @@ public class DatasourcesApi {
 	 *             <li>Code 916 : Resource not found (ApiKey not found)</li>
 	 *             </ul>
 	 */
-	public List<Stream> listStreams(String datasourceId, String page, String size) throws SDKException, HTTPException {
+	public Page<List<Stream>> listStreams(String datasourceId, String page, String size) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (datasourceId == null) {
@@ -573,17 +537,13 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			if ("".equals(response)) {
-				return new ArrayList<Stream>();
-			} else {
-				return (List<Stream>) ApiInvoker.deserialize(response, "List", Stream.class);
-			}
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		Page<List<Stream>> pageResult = new Page<List<Stream>>();
+		pageResult.object = (List<Stream>) ApiInvoker.deserialize(httpResponse.body, "List", Stream.class);
+		feedHeaders(httpResponse, pageResult);
+
+		return pageResult;
 	}
 
 	/**
@@ -624,13 +584,8 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		return (Stream) ApiInvoker.deserialize(httpResponse.body, "", Stream.class);
 	}
 
 	/**
@@ -670,13 +625,8 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
+		return (Stream) ApiInvoker.deserialize(httpResponse.body, "", Stream.class);
 	}
 
 	/**
@@ -699,7 +649,7 @@ public class DatasourcesApi {
 	 *             <li>Code 928 : Invalid input data (Empty input data)</li>
 	 *             </ul>
 	 */
-	public Stream updateStream(String datasourceId, String streamId, Stream body) throws SDKException, HTTPException {
+	public void updateStream(String datasourceId, String streamId, Stream body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (datasourceId == null || streamId == null) {
@@ -720,13 +670,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "PUT", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -746,7 +690,7 @@ public class DatasourcesApi {
 	 *             <li>Code 923 : Invalid input data</li>
 	 *             </ul>
 	 */
-	public Stream deleteStream(String datasourceId, String streamId) throws SDKException, HTTPException {
+	public void deleteStream(String datasourceId, String streamId) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (datasourceId == null || streamId == null) {
@@ -767,13 +711,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (Stream) ApiInvoker.deserialize(response, "", Stream.class);
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -800,8 +738,7 @@ public class DatasourcesApi {
 	 *             <li>Code 927 : Invalid input data</li>
 	 *             </ul>
 	 */
-	public List<Value> listValues(String datasourceId, String streamId, String page, String size) throws SDKException, HTTPException,
-			Exception {
+	public Page<List<Value>> listValues(String datasourceId, String streamId, String page, String size) throws SDKException, HTTPException {
 		Object postBody = null;
 		// verify required params are set
 		if (datasourceId == null || streamId == null) {
@@ -826,13 +763,13 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return (List<Value>) ApiInvoker.deserialize(response, "List", Value.class);
-		} else {
-			return null;
-		}
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "GET", queryParams, postBody, headerParams, formParams, contentType);
 
+		Page<List<Value>> pageResult = new Page<List<Value>>();
+		pageResult.object = (List<Value>) ApiInvoker.deserialize(httpResponse.body, "List", Value.class);
+		feedHeaders(httpResponse, pageResult);
+
+		return pageResult;
 	}
 
 	/**
@@ -859,8 +796,7 @@ public class DatasourcesApi {
 	 *             <li>Code 928 : Invalid input data (Empty field)</li>
 	 *             </ul>
 	 */
-	public List<Value> createValues(String datasourceId, String streamId, List<Value> body) throws SDKException, HTTPException,
-			Exception {
+	public List<Response> createValues(String datasourceId, String streamId, List<Value> body) throws SDKException, HTTPException {
 		Object postBody = body;
 		// verify required params are set
 		if (datasourceId == null || streamId == null) {
@@ -881,17 +817,8 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			if ("".equals(response)) {
-				return new ArrayList<Value>();
-			} else {
-				return (List<Value>) ApiInvoker.deserialize(response, "", Value.class);
-			}
-		} else {
-			return null;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "POST", queryParams, postBody, headerParams, formParams, contentType);
+		return (List<Response>) ApiInvoker.deserialize(httpResponse.body, "", List.class);
 	}
 
 	/**
@@ -930,13 +857,7 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return;
-		} else {
-			return;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 
 	/**
@@ -979,12 +900,6 @@ public class DatasourcesApi {
 		
 		String contentType =  "application/json";
 
-		String response = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
-		if (response != null) {
-			return;
-		} else {
-			return;
-		}
-
+		HttpResponse httpResponse = apiInvoker.invokeAPI(basePath, path, "DELETE", queryParams, postBody, headerParams, formParams, contentType);
 	}
 }

@@ -24,11 +24,20 @@ public class Value {
 	/** The value */
 	private Object value = null;
 
+	/** Date of creation **/
+	private String created = null;
+
+    /** Date of latest modification **/
+	private String updated = null;
+
 	/** The value timestamp */
 	private String at = null;
 
 	/** The value location */
-	private Location location = null;
+	private Double[] location = null;
+
+	/** Metadata **/
+	private Object metadata = null;
 
 	/**
 	 * Get the value id
@@ -69,6 +78,25 @@ public class Value {
 	}
 
 	/**
+	 * Get the metadata
+	 *
+	 * @return metadata
+	 */
+	public Object getMetadata() {
+		return metadata;
+	}
+
+	/**
+	 * Set the metadata
+	 *
+	 * @param metadata
+	 *            the new metadata
+	 */
+	public void setMetadata(Object metadata) {
+		this.metadata = metadata;
+	}
+
+	/**
 	 * Get the value timestamp
 	 * 
 	 * @return at the value timestamp
@@ -88,11 +116,47 @@ public class Value {
 	}
 
 	/**
+	 * Get the created timestamp
+	 *
+	 * @return the created date
+	 */
+	public String getCreated() {
+		return created;
+	}
+
+	/**
+	 * Set the created timestamp
+	 *
+	 * @param created timestamp
+	 */
+	public void setCreated(String created) {
+		this.created = created;
+	}
+
+	/**
+	 * Get the updated timestamp
+	 *
+	 * @return the updated date
+	 */
+	public String getUpdated() {
+		return updated;
+	}
+
+	/**
+	 * Set the updated timestamp
+	 *
+	 * @param updated timestamp
+	 */
+	public void setUpdated(String updated) {
+		this.updated = updated;
+	}
+
+	/**
 	 * Get value location
 	 * 
 	 * @return location the value location
 	 */
-	public Location getLocation() {
+	public Double[] getLocation() {
 		return location;
 	}
 
@@ -102,7 +166,7 @@ public class Value {
 	 * @param location
 	 *            the new value location
 	 */
-	public void setLocation(Location location) {
+	public void setLocation(Double[] location) {
 		this.location = location;
 	}
 
@@ -113,7 +177,10 @@ public class Value {
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  value: ").append(value).append("\n");
 		sb.append("  at: ").append(at).append("\n");
+		sb.append("  created: ").append(created).append("\n");
+		sb.append("  updated: ").append(updated).append("\n");
 		sb.append("  location: ").append(location).append("\n");
+		sb.append("  metadata: ").append(metadata).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}
