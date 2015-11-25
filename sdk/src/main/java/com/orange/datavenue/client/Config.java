@@ -12,9 +12,8 @@ package com.orange.datavenue.client;
  * Datavenue Client configuration
  */
 public class Config {
-	//public static final String DEFAULT_BASE_URL = "https://api.orange.com/datavenue/v1";
-	public static final String DEFAULT_BASE_URL = "http://127.0.0.1:7000/datavenue/v1";
-	//public static final String DEFAULT_BASE_URL = "http://api.iss-int.isaservicefor.me/api/v1";
+	
+	public static final String DEFAULT_BASE_URL = "https://api.orange.com/datavenue/v1"; 
 	String baseUrl;
 	String opeKey;
 	String XISSKey;
